@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JSON Skeleton V3</title>
+<style>
+:root{--bg:#f4f6fa;--fg:#172033;--card:#fff;--line:#dce2ed;--muted:#586579;--hd:#14213d;--hdfg:#fff;--pri:#2457c5;--sec:#e3e9f5;--okbg:#e8f6ee;--ok:#12623b;--errbg:#fff0ef;--err:#a32118;--info:#edf1f7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1420;--fg:#e6ebf5;--card:#171e2e;--line:#2a3550;--muted:#9aa7bf;--hd:#0b1020;--pri:#5b8cff;--sec:#26314b;--okbg:#10301f;--ok:#7fe0a8;--errbg:#3a1714;--err:#ff9a90;--info:#202a40;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1420;--fg:#e6ebf5;--card:#171e2e;--line:#2a3550;--muted:#9aa7bf;--hd:#0b1020;--pri:#5b8cff;--sec:#26314b;--okbg:#10301f;--ok:#7fe0a8;--errbg:#3a1714;--err:#ff9a90;--info:#202a40;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px system-ui,"Segoe UI",sans-serif}
+header{background:var(--hd);color:var(--hdfg);padding:16px 4vw}h1{font-size:20px;margin:0 0 4px}header p{margin:0;opacity:.8}
+main{max-width:1700px;margin:auto;padding:16px 3vw}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+button{border:0;border-radius:7px;padding:9px 12px;font-weight:650;cursor:pointer;background:var(--pri);color:#fff;font-family:inherit}
+button.s{background:var(--sec);color:var(--fg)}button.d{background:var(--errbg);color:var(--err)}button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+select{padding:8px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+label.c{display:flex;gap:5px;align-items:center}
+.status{padding:10px 12px;border-radius:7px;margin:10px 0;background:var(--info);white-space:pre-wrap}.status.ok{background:var(--okbg);color:var(--ok)}.status.err{background:var(--errbg);color:var(--err)}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pane{background:var(--card);border:1px solid var(--line);border-radius:9px;overflow:hidden;min-width:0}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line)}.ph h2{font-size:14px;margin:0}
+.ph div{display:flex;gap:6px}.ph button{padding:6px 9px;font-size:12px}
+textarea{display:block;width:100%;height:58vh;min-height:320px;border:0;padding:10px;resize:vertical;background:var(--card);color:var(--fg);font:12px/1.45 ui-monospace,Consolas,monospace;white-space:pre;overflow:auto}
+[hidden]{display:none!important}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}
+.metrics h3{grid-column:1/-1;font-size:13px;margin:4px 0 0}
+.m{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px}.m strong{display:block;font-size:19px}.m small{color:var(--muted)}
+.ok-flash{box-shadow:0 0 0 3px var(--ok)}
+details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:10px}
+details pre{margin:8px 0 0;max-height:260px;overflow:auto;font-size:12px}
+.note{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:12px;line-height:1.5}
+#tbox{padding:0;margin:10px 0}#tbox summary{padding:10px 12px;cursor:pointer;font-weight:650}#tbox pre{margin:0;padding:0 12px 12px;max-height:300px;overflow:auto;font-size:12px;white-space:pre-wrap}
+@media(max-width:850px){.panes{grid-template-columns:1fr}textarea{height:40vh}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body data-url="https://claude.ai/artifact/2ryEVotMp4wtNf3eSf8NFi">
+<header><h1>JSON Skeleton — V3</h1><p>Keep every key, collapse arrays, blank the values. Strict first-item mode or merge-all-items mode, with a key-loss report.</p></header>
+<main>
+<div class="bar">
+<button id="go">Transform + Verify</button><button class="d" id="cancel" disabled>Cancel</button>
+<select id="mode" aria-label="Mode"><option value="strict">Strict: first item only</option><option value="merge">Merge: union of all items</option></select>
+<label class="c"><input type="checkbox" id="hints"> Type hints instead of ""</label><label class="c"><input type="checkbox" id="showStats"> Show statistics</label>
+<button class="s" id="load">Load JSON file</button><input id="file" type="file" accept=".json,application/json" hidden>
+<button class="s" id="dl" disabled>Download</button><button class="s" id="rt">Re-run self-test</button>
+</div>
+<div id="status" class="status" role="status" aria-live="polite">Paste JSON on the left (or drop a file), then click Transform + Verify.</div>
+<details id="tbox" class="status"><summary id="tsum">Self-test: running…</summary><pre id="tlist"></pre></details>
+<div class="panes">
+<section class="pane"><div class="ph"><h2>Input JSON</h2><div><button class="s" id="cl" data-noun="Input">Copy</button><button class="d" id="xl">Clear</button></div></div>
+<textarea id="src" spellcheck="false" aria-label="Input JSON"></textarea></section>
+<section class="pane"><div class="ph"><h2>Skeleton JSON</h2><div><button class="s" id="cr" data-noun="Output" disabled>Copy</button><button class="d" id="xr">Clear</button></div></div>
+<textarea id="dst" spellcheck="false" readonly aria-label="Output JSON"></textarea></section>
+</div>
+<div id="metrics" class="metrics" hidden>
+<h3>Input (full original)</h3>
+<div class="m"><strong id="iA">0</strong><small>Arrays</small></div><div class="m"><strong id="iO">0</strong><small>Objects</small></div><div class="m"><strong id="iK">0</strong><small>Keys</small></div><div class="m"><strong id="iP">0</strong><small>Primitives</small></div><div class="m"><strong id="iC">0</strong><small>Containers</small></div>
+<h3>Output (skeleton)</h3>
+<div class="m"><strong id="oA">0</strong><small>Arrays</small></div><div class="m"><strong id="oO">0</strong><small>Objects</small></div><div class="m"><strong id="oK">0</strong><small>Keys</small></div><div class="m"><strong id="oP">0</strong><small>Primitives</small></div><div class="m"><strong id="oC">0</strong><small>Containers</small></div>
+<h3>Key-path coverage</h3>
+<div class="m"><strong id="kIn">0</strong><small>Distinct key paths in input</small></div><div class="m"><strong id="kOut">0</strong><small>Kept in output</small></div><div class="m"><strong id="kLost">0</strong><small>Dropped</small></div>
+</div>
+<details id="lostBox" hidden><summary id="lostSum">Dropped key paths</summary><pre id="lostList"></pre></details>
+<div class="note"><b>Rules and checks</b>
+<ul>
+<li><b>Strict:</b> every non-empty array keeps only its first element; empty arrays stay <code>[]</code>. <b>Merge:</b> array items are combined, so every key seen in any item is kept. Where types conflict at one path, object beats array beats primitive.</li>
+<li>Primitives become <code>""</code>, or <code>"string"</code>, <code>"number"</code>, <code>"boolean"</code>, <code>"null"</code> with type hints on (merged types are joined with <code>|</code>).</li>
+<li>Verification: rule check against the input, an output-only sweep (arrays have at most one item, leaves are valid), idempotence (skeleton of the skeleton is unchanged, hints off), and in merge mode a check that no key path was lost.</li>
+<li>Limits of <code>JSON.parse</code>: duplicate keys keep the last value, and integers beyond 2<sup>53</sup> lose precision. Neither affects the skeleton, but input counts reflect the parsed data.</li>
+</ul></div>
+</main>
+<script>
+(function(){
+/* global document, window, navigator, performance, setTimeout, URL, Blob, FileReader */
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var src=$("src"),dst=$("dst"),st=$("status"),out="";
+var TYPES=["string","number","boolean","null"];
+function tn(v){return v===null?"null":Array.isArray(v)?"array":typeof v}
+function isObj(v){return v!==null&&typeof v==="object"&&!Array.isArray(v)}
+function setStatus(t,ok){st.textContent=t;st.className="status "+(ok?"ok":"err")}
+function leaf(v,h){return h?tn(v):""}
+function blank(v,h){return Array.isArray(v)?[]:isObj(v)?Object.create(null):leaf(v,h)}
+function isC(v){return typeof v==="object"&&v!==null}
+
+function* strictG(root,h){var tk=0;
+ var res=blank(root,h),stack=[{a:root,b:res}];
+ while(stack.length){
+  if(++tk%256===0)yield;var p=stack.pop(),a=p.a,b=p.b;
+  if(Array.isArray(a)){
+   if(a.length){var x=a[0],y=blank(x,h);b.push(y);if(isC(y))stack.push({a:x,b:y})}
+  }else if(isObj(a)){
+   Object.keys(a).forEach(function(k){var x=a[k],y=blank(x,h);b[k]=y;if(isC(y))stack.push({a:x,b:y})});
+  }
+ }
+ return res;
+}
+function* mergeG(vals,h){yield;
+ var objs=vals.filter(isObj),arrs=vals.filter(Array.isArray);
+ if(objs.length){
+  var keys=[],seen=Object.create(null),o=Object.create(null);
+  objs.forEach(function(x){Object.keys(x).forEach(function(k){if(!seen[k]){seen[k]=1;keys.push(k)}})});
+  for(var ki=0;ki<keys.length;ki++){var k=keys[ki],vs=[];for(var oi=0;oi<objs.length;oi++)if(Object.prototype.hasOwnProperty.call(objs[oi],k))vs.push(objs[oi][k]);o[k]=yield* mergeG(vs,h)}
+  return o;
+ }
+ if(arrs.length){var items=[];for(var ai=0;ai<arrs.length;ai++)for(var aj=0;aj<arrs[ai].length;aj++)items.push(arrs[ai][aj]);return items.length?[yield* mergeG(items,h)]:[]}
+ if(!h)return "";
+ var ts=[];vals.forEach(function(v){var t=tn(v);if(ts.indexOf(t)<0)ts.push(t)});
+ return ts.join("|");
+}
+function* countsG(root){var tk=0;
+ var c={a:0,o:0,k:0,p:0},s=[root];
+ while(s.length){if(++tk%256===0)yield;var v=s.pop();
+  if(Array.isArray(v)){c.a++;v.forEach(function(x){s.push(x)})}
+  else if(isObj(v)){c.o++;var ks=Object.keys(v);c.k+=ks.length;ks.forEach(function(k){s.push(v[k])})}
+  else c.p++;}
+ return c;
+}
+function* keyPathsG(root){var tk=0;
+ var set=new Set(),s=[{v:root,p:"$"}];
+ while(s.length){var n=s.pop(),v=n.v;
+  if(++tk%256===0)yield;if(Array.isArray(v))v.forEach(function(x){s.push({v:x,p:n.p+"[]"})});
+  else if(isObj(v))Object.keys(v).forEach(function(k){var p=n.p+"."+k;set.add(p);s.push({v:v[k],p:p})});}
+ return set;
+}
+// Rule check against the input (strict mode only)
+function verifyRules(a0,b0,h){
+ var s=[{a:a0,b:b0,p:"$"}];
+ while(s.length){var q=s.pop(),a=q.a,b=q.b,p=q.p;
+  if(Array.isArray(a)){
+   var n=a.length?1:0;
+   if(!Array.isArray(b))throw Error(p+": expected an array, found "+tn(b));
+   if(b.length!==n)throw Error(p+": expected array length "+n+", found "+b.length);
+   if(n)s.push({a:a[0],b:b[0],p:p+"[0]"});
+  }else if(isObj(a)){
+   if(!isObj(b))throw Error(p+": expected an object, found "+tn(b));
+   var ks=Object.keys(a);
+   if(ks.length!==Object.keys(b).length)throw Error(p+": key count differs");
+   ks.forEach(function(k){if(!Object.prototype.hasOwnProperty.call(b,k))throw Error(p+": missing key "+JSON.stringify(k));s.push({a:a[k],b:b[k],p:p+"."+k})});
+  }else if(b!==leaf(a,h))throw Error(p+": expected "+JSON.stringify(leaf(a,h))+", found "+JSON.stringify(b));
+ }
+}
+// Output-only sweep, independent of the input
+function sweep(root,h){
+ var s=[{v:root,p:"$"}];
+ while(s.length){var n=s.pop(),v=n.v;
+  if(Array.isArray(v)){if(v.length>1)throw Error(n.p+": array has "+v.length+" items");v.forEach(function(x){s.push({v:x,p:n.p+"[0]"})})}
+  else if(isObj(v))Object.keys(v).forEach(function(k){s.push({v:v[k],p:n.p+"."+k})});
+  else if(h){if(typeof v!=="string"||!v.split("|").every(function(t){return TYPES.indexOf(t)>=0}))throw Error(n.p+": invalid type hint "+JSON.stringify(v))}
+  else if(v!=="")throw Error(n.p+": leaf is not an empty string");}
+}
+function show(pre,c){$(pre+"A").textContent=c.a;$(pre+"O").textContent=c.o;$(pre+"K").textContent=c.k;$(pre+"P").textContent=c.p;$(pre+"C").textContent=c.a+c.o}
+function jumpToError(msg){
+ var pos=errPos(msg,src.value);
+ if(pos!==null){src.focus();src.setSelectionRange(pos,Math.min(pos+1,src.value.length))}
+}
+function clearOut(){out="";dst.value="";$("cr").disabled=true;$("dl").disabled=true;hasStats=false;applyStats();$("lostBox").hidden=true}
+
+async function run(){
+ if(!testsOk){setStatus("BLOCKED — the self-test has not passed. Open the self-test panel above and re-run it.",false);return}
+ try{
+  if(busy)return;cancel=false;setBusy(true);t0=performance.now();setStatus("Working — reading input…",true);await tick();var raw=stripBom(src.value);
+  if(!raw.trim())throw Error("Input is empty. Paste JSON or load a .json file first.");
+  var orig;
+  try{orig=JSON.parse(raw)}catch(e){jumpToError(e.message);throw new Error("Invalid JSON syntax: "+e.message,{cause:e})}
+  var h=$("hints").checked,mode=$("mode").value;
+  var res=await drive(mode==="merge"?mergeG([orig],h):strictG(orig,h),"building skeleton");
+  if(mode==="strict")verifyRules(orig,res,h);
+  sweep(res,h);
+  var text=JSON.stringify(res,null,2);
+  if(!h&&JSON.stringify(strict(JSON.parse(text),false),null,2)!==text)throw Error("Idempotence check failed: the skeleton changed when transformed again.");
+  var inP=await drive(keyPathsG(orig),"comparing key paths"),outP=await drive(keyPathsG(res)),lost=[];
+  inP.forEach(function(p){if(!outP.has(p))lost.push(p)});
+  if(mode==="merge"&&lost.length)throw Error("Merge mode lost "+lost.length+" key path(s), first: "+lost[0]);
+  dst.value=text;out=text;
+  show("i",await drive(countsG(orig),"counting"));show("o",await drive(countsG(res)));setBusy(false);
+  $("kIn").textContent=inP.size;$("kOut").textContent=outP.size;$("kLost").textContent=lost.length;
+  hasStats=true;applyStats();$("cr").disabled=false;$("dl").disabled=false;
+  var lb=$("lostBox");
+  if(lost.length){lb.hidden=false;lb.open=false;$("lostSum").textContent="Dropped key paths ("+lost.length+") — switch to Merge mode to keep them";$("lostList").textContent=lost.sort().slice(0,2000).join("\n")+(lost.length>2000?"\n… and "+(lost.length-2000)+" more":"")}
+  else lb.hidden=true;
+  setStatus("SUCCESS — all checks passed ("+(mode==="merge"?"merge":"strict")+" mode). "+(lost.length?lost.length+" key path(s) were dropped by the first-item rule; see the report below.":"No key paths were lost."),true);
+ }catch(e){
+  clearOut();
+  setBusy(false);setStatus("WARNING — failed.\nReason: "+e.message+"\nNo partial output was kept.",false);
+ }
+}
+function flash(b,ok,msg){var o=b.dataset.label;b.textContent=msg;b.classList.toggle("ok-flash",ok);setTimeout(function(){b.textContent=o;b.classList.remove("ok-flash")},1600)}
+function copy(text,b){
+ if(!text){flash(b,false,"Nothing to copy");setStatus("WARNING — nothing to copy: the "+b.dataset.noun.toLowerCase()+" is empty.",false);return}
+ var done=function(){flash(b,true,"Copied ✓");setStatus("SUCCESS — "+b.dataset.noun.toLowerCase()+" copied to the clipboard.",true)};
+ var fail=function(e){flash(b,false,"Copy failed");setStatus("WARNING — copy failed: "+e.message+". Select the text and copy manually.",false)};
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done,fail);
+ else try{var t=document.createElement("textarea");t.value=text;t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();var ok=document.execCommand("copy");t.remove();if(!ok)throw Error("Browser denied clipboard access.");done()}catch(e){fail(e)}
+}
+["cl","cr"].forEach(function(id){var b=$(id);b.dataset.label=b.textContent});
+$("cl").addEventListener("click",function(){copy(src.value,this)});
+$("cr").addEventListener("click",function(){copy(dst.value,this)});
+$("xl").addEventListener("click",function(){src.value="";setStatus("Input cleared. Output was not changed.",true)});
+$("xr").addEventListener("click",function(){clearOut();setStatus("Output cleared. Input was not changed.",true)});
+var hasStats=false;function applyStats(){$("metrics").hidden=!(hasStats&&$("showStats").checked)}
+var testsOk=false,busy=false,cancel=false,phase="",t0=0;
+function S(g){return function(){var it=g.apply(null,arguments),r;while(!(r=it.next()).done);return r.value}}
+var strict=S(strictG),merge=S(mergeG),counts=S(countsG),keyPaths=S(keyPathsG);
+function tick(){return new Promise(function(r){setTimeout(r,0)})}
+function setBusy(b){busy=b;$("go").disabled=b||!testsOk;$("cancel").disabled=!b}
+function drive(it,label){
+ if(label)phase=label;
+ return new Promise(function(res,rej){
+  function step(){
+   if(cancel){rej(Error("Cancelled by user."));return}
+   try{
+    var t=performance.now(),r;
+    while(!(r=it.next()).done){
+     if(performance.now()-t>12){setStatus("Working — "+phase+"… "+((performance.now()-t0)/1000).toFixed(1)+" s. The page stays usable; press Cancel to stop.",true);setTimeout(step,0);return}
+    }
+    res(r.value);
+   }catch(e){rej(e)}
+  }
+  step();
+ });
+}
+function stripBom(s){return s.replace(/^\uFEFF/,"")}
+function errPos(msg,text){
+ var m=/position (\d+)/.exec(msg),l=/line (\d+) column (\d+)/.exec(msg);
+ if(m)return +m[1];
+ if(l){var lines=text.split("\n"),ln=+l[1]-1,pos=0;for(var i=0;i<ln&&i<lines.length;i++)pos+=lines[i].length+1;return pos+ +l[2]-1}
+ return null;
+}
+function J(s){return JSON.parse(s)}
+function thr(f){try{f()}catch{return true}return false}
+function deep(n,v){for(var i=0;i<n;i++)v=[v];return v}
+function chk(mode,inp,exp,h){
+ h=!!h;
+ var o=J(inp),r=mode==="merge"?merge([o],h):strict(o,h),s=JSON.stringify(r),e=JSON.stringify(J(exp));
+ if(s!==e)return "expected "+e+" but got "+s;
+ if(mode==="strict")verifyRules(o,r,h);
+ sweep(r,h);
+ if(!h&&JSON.stringify(strict(r,false))!==s)return "not idempotent";
+ if(mode==="merge"){var ip=keyPaths(o),op=keyPaths(r),miss=0;ip.forEach(function(p){if(!op.has(p))miss++});if(miss)return miss+" key path(s) lost"}
+ return null;
+}
+function buildTests(){
+ var t=[];
+ function add(g,n,f){t.push({g:g,n:n,f:f})}
+ var C=[
+ ["Primitives","root string","strict",'"x"','""'],
+ ["Primitives","root number","strict","42",'""'],
+ ["Primitives","root zero","strict","0",'""'],
+ ["Primitives","root true","strict","true",'""'],
+ ["Primitives","root false","strict","false",'""'],
+ ["Primitives","root null","strict","null",'""'],
+ ["Empties","empty object","strict","{}","{}"],
+ ["Empties","empty array","strict","[]","[]"],
+ ["Empties","nested empty containers","strict",'{"a":[],"b":{},"c":[[]],"d":{"e":{}}}','{"a":[],"b":{},"c":[[]],"d":{"e":{}}}'],
+ ["Objects","keeps all keys, blanks every primitive type","strict",'{"a":1,"b":"x","c":true,"d":null}','{"a":"","b":"","c":"","d":""}'],
+ ["Objects","nested objects","strict",'{"a":{"b":{"c":1}}}','{"a":{"b":{"c":""}}}'],
+ ["Objects","empty-string key","strict",'{"":1}','{"":""}'],
+ ["Objects","unicode, spaces, dots and brackets in keys","strict",'{"é":1,"日本":2,"a b":3,"a.b":4,"a[]":5}','{"é":"","日本":"","a b":"","a.b":"","a[]":""}'],
+ ["Objects","__proto__, constructor and toString keys","strict",'{"__proto__":{"x":1},"constructor":1,"toString":2}','{"__proto__":{"x":""},"constructor":"","toString":""}'],
+ ["Objects","duplicate keys (last wins)","strict",'{"a":1,"a":{"b":2}}','{"a":{"b":""}}'],
+ ["Objects","huge, negative-zero and exponent numbers","strict",'{"n":64343253656434234,"z":-0,"e":1e-7,"i":1e999}','{"n":"","z":"","e":"","i":""}'],
+ ["Arrays","keeps first item only","strict","[1,2,3]",'[""]'],
+ ["Arrays","later items with other keys are dropped","strict",'[{"a":1},{"b":2}]','[{"a":""}]'],
+ ["Arrays","nested arrays","strict","[[1,2],[3]]",'[[""]]'],
+ ["Arrays","first item is an empty array","strict","[[],[1]]","[[]]"],
+ ["Arrays","first item is null","strict",'[null,{"a":1}]','[""]'],
+ ["Arrays","first item is an empty object","strict",'[{},{"a":1}]',"[{}]"],
+ ["Arrays","arrays inside arrays inside objects","strict",'{"a":[[{"x":1},{"y":2}],[{"z":3}]]}','{"a":[[{"x":""}]]}'],
+ ["Arrays","mixed types in one array","strict",'["s",1,{"a":1}]','[""]'],
+ ["Hints","all four primitive types","strict",'{"s":"x","n":1,"b":false,"z":null}','{"s":"string","n":"number","b":"boolean","z":"null"}',1],
+ ["Hints","array uses first item type","strict",'[1,"a"]','["number"]',1],
+ ["Hints","empty string and zero are typed","strict",'{"a":"","b":0}','{"a":"string","b":"number"}',1],
+ ["Merge","union of keys","merge",'[{"a":1},{"b":2}]','[{"a":"","b":""}]'],
+ ["Merge","key order is first-seen","merge",'[{"b":1},{"a":1,"b":2}]','[{"b":"","a":""}]'],
+ ["Merge","deep union across nested arrays","merge",'{"l":[{"x":[{"p":1}]},{"x":[{"q":1}],"y":2}]}','{"l":[{"x":[{"p":"","q":""}],"y":""}]}'],
+ ["Merge","key missing in some items","merge",'[{"a":1},{},{"b":1}]','[{"a":"","b":""}]'],
+ ["Merge","object beats primitive","merge",'[{"a":"s"},{"a":{"b":1}}]','[{"a":{"b":""}}]'],
+ ["Merge","array beats primitive","merge",'[{"a":1},{"a":[2]}]','[{"a":[""]}]'],
+ ["Merge","object beats array","merge",'[{"a":[1]},{"a":{"b":1}}]','[{"a":{"b":""}}]'],
+ ["Merge","array of empty arrays","merge","[[],[]]","[[]]"],
+ ["Merge","root empty array","merge","[]","[]"],
+ ["Merge","empty array then non-empty","merge",'[{"a":[]},{"a":[1]}]','[{"a":[""]}]'],
+ ["Merge","nested arrays","merge","[[1],[2,3]]",'[[""]]'],
+ ["Merge","root scalar","merge","5",'""'],
+ ["Merge","root empty object","merge","{}","{}"],
+ ["Merge","null values","merge",'[{"a":null},{"a":null}]','[{"a":""}]'],
+ ["Merge","__proto__ key","merge",'[{"__proto__":1},{"x":2}]','[{"__proto__":"","x":""}]'],
+ ["Merge+hints","mixed types are joined","merge",'[{"a":1},{"a":"s"},{"a":1}]','[{"a":"number|string"}]',1],
+ ["Merge+hints","null and boolean","merge",'[{"a":null},{"a":true}]','[{"a":"null|boolean"}]',1],
+ ["Merge+hints","single type","merge",'{"a":[1,2]}','{"a":["number"]}',1],
+ ["Realistic","strict: first item has empty deductibles","strict",'{"p":[{"l":[{"d":[],"s":[{"v":1}]},{"d":[{"x":1}],"s":[]}]}]}','{"p":[{"l":[{"d":[],"s":[{"v":""}]}]}]}'],
+ ["Realistic","merge: recovers deductible keys","merge",'{"p":[{"l":[{"d":[],"s":[{"v":1}]},{"d":[{"x":1}],"s":[]}]}]}','{"p":[{"l":[{"d":[{"x":""}],"s":[{"v":""}]}]}]}']
+ ];
+ C.forEach(function(c){add(c[0],c[1],function(){return chk(c[2],c[3],c[4],c[5])})});
+ add("Scale","5000 levels deep (iterative strict)",function(){var c=counts(strict(deep(5000,1),false));return c.a===5000&&c.p===1?null:"bad counts"});
+ add("Scale","300 levels deep (recursive merge)",function(){var c=counts(merge([deep(300,1)],false));return c.a===300&&c.p===1?null:"bad counts"});
+ add("Scale","100000-item array collapses to one",function(){var a=[];for(var i=0;i<100000;i++)a.push(i);var r=strict(a,false);return r.length===1?null:"length "+r.length});
+ add("Scale","5000-key object keeps every key",function(){var o={};for(var i=0;i<5000;i++)o["k"+i]=i;return Object.keys(strict(o,false)).length===5000?null:"keys lost"});
+ add("Responsive","long work yields to the browser",function(){var o={};for(var i=0;i<5000;i++)o["k"+i]=[i];var it=strictG(o,false),y=0;while(!it.next().done)y++;return y>=2?null:"only "+y+" yields"});
+ add("Responsive","counts and key paths yield too",function(){var a=[];for(var i=0;i<3000;i++)a.push({a:i});var y1=0,y2=0,it=countsG(a);while(!it.next().done)y1++;it=keyPathsG(a);while(!it.next().done)y2++;return y1>=2&&y2>=2?null:y1+"/"+y2+" yields"});
+ add("Scale","merge handles a 200000-item array",function(){var a=[];for(var i=0;i<200000;i++)a.push({a:i});return JSON.stringify(merge([a],false))==="[{\"a\":\"\"}]"?null:"wrong result"});
+ add("Safety","input is not mutated",function(){var o=J('{"a":[1,{"b":2}],"c":3}'),b=JSON.stringify(o);strict(o,false);merge([o],false);return JSON.stringify(o)===b?null:"input changed"});
+ add("Safety","output shares no references with input",function(){var o=J('{"a":[1]}'),r=strict(o,false);r.a.push("x");return o.a.length===1?null:"shared array"});
+ add("Helpers","counts() on a mixed document",function(){var c=counts(J('{"a":[1,{"b":2}]}'));return c.a===1&&c.o===2&&c.k===2&&c.p===2?null:JSON.stringify(c)});
+ add("Helpers","keyPaths() normalises array indices",function(){var s=keyPaths(J('{"a":[{"b":1},{"c":1}]}'));return s.size===3&&s.has("$.a[].b")&&s.has("$.a[].c")?null:Array.from(s).join(",")});
+ add("Helpers","counts() on empty containers",function(){var c=counts(J('[[],{}]'));return c.a===2&&c.o===1&&c.k===0&&c.p===0?null:JSON.stringify(c)});
+ add("Key loss","strict reports the dropped path",function(){var o=J('[{"a":1},{"b":2}]'),op=keyPaths(strict(o,false)),l=[];keyPaths(o).forEach(function(p){if(!op.has(p))l.push(p)});return l.length===1&&l[0]==="$[].b"?null:l.join(",")});
+ add("Key loss","merge reports nothing dropped",function(){var o=J('[{"a":1},{"b":2}]'),op=keyPaths(merge([o],false)),n=0;keyPaths(o).forEach(function(p){if(!op.has(p))n++});return n===0?null:n+" dropped"});
+ var NEG=[
+ ["missing key",function(){verifyRules(J('{"a":1}'),J('{"b":""}'),false)}],
+ ["extra key",function(){verifyRules(J('{"a":1}'),J('{"a":"","b":""}'),false)}],
+ ["non-empty leaf",function(){verifyRules(J('{"a":1}'),J('{"a":"x"}'),false)}],
+ ["object expected, array found",function(){verifyRules(J('{"a":1}'),J("[]"),false)}],
+ ["array expected, object found",function(){verifyRules(J("[1]"),J("{}"),false)}],
+ ["two items kept",function(){verifyRules(J("[1,2]"),J('["",""]'),false)}],
+ ["empty array gained an item",function(){verifyRules(J("[]"),J('[""]'),false)}],
+ ["wrong type hint",function(){verifyRules(J('{"a":1}'),J('{"a":"string"}'),true)}],
+ ["nested array gained an item",function(){verifyRules(J('{"a":[[1]]}'),J('{"a":[["",""]]}'),false)}]
+ ];
+ NEG.forEach(function(n){add("Rule check rejects",n[0],function(){return thr(n[1])?null:"did not throw"})});
+ var SW=[
+ ["array with 2 items",function(){sweep(J('["",""]'),false)}],
+ ["non-empty leaf",function(){sweep(J('"x"'),false)}],
+ ["number leaf",function(){sweep(J('{"a":[[1]]}'),false)}],
+ ["unknown type hint",function(){sweep(J('"foo"'),true)}],
+ ["partly invalid hint",function(){sweep(J('"number|oops"'),true)}]
+ ];
+ SW.forEach(function(n){add("Sweep rejects",n[0],function(){return thr(n[1])?null:"did not throw"})});
+ add("Sweep accepts","valid hints and empty skeletons",function(){sweep(J('"number|string"'),true);sweep(J('{"a":[""],"b":[]}'),false);return null});
+ ['{"a":','{\'a\':1}',"[1,]","","undefined","NaN","{a:1}","[1 2]",'{"a":1,}'].forEach(function(x){add("Parser","rejects "+JSON.stringify(x),function(){return thr(function(){J(x)})?null:"parsed"})});
+ add("Errors","position style message",function(){return errPos("Unexpected token } in JSON at position 12","")===12?null:"wrong"});
+ add("Errors","position wins over line/column",function(){return errPos("at position 12 (line 1 column 13)","")===12?null:"wrong"});
+ add("Errors","line/column style message",function(){return errPos("unexpected character at line 2 column 3 of the JSON data","ab\ncd")===5?null:"wrong"});
+ add("Errors","no position gives null",function(){return errPos("bad","")===null?null:"wrong"});
+ add("Input","leading BOM is stripped and parses",function(){return stripBom("\uFEFF[1]")==="[1]"&&J(stripBom("\uFEFF[1]")).length===1?null:"wrong"});
+ add("Input","text without BOM is unchanged",function(){return stripBom("{}")==="{}"?null:"wrong"});
+ add("Input","BOM elsewhere is kept",function(){return stripBom("a\uFEFF")==="a\uFEFF"?null:"wrong"});
+ return t;
+}
+function runTests(){
+ var tests=buildTests(),fails=0,lines=[],ms=performance.now();
+ tests.forEach(function(t){var m;try{m=t.f()}catch(e){m="threw: "+e.message}if(m)fails++;lines.push((m?"✗ ":"✓ ")+t.g+" › "+t.n+(m?" — "+m:""))});
+ testsOk=fails===0;
+ $("tsum").textContent=(testsOk?"Self-test PASSED — ":"Self-test FAILED — ")+(tests.length-fails)+" of "+tests.length+" checks OK ("+Math.round(performance.now()-ms)+" ms)."+(testsOk?"":" Transform is disabled.");
+ $("tlist").textContent=lines.sort(function(a,b){return (a[0]==="✗"?0:1)-(b[0]==="✗"?0:1)}).join("\n");
+ $("tbox").className="status "+(testsOk?"ok":"err");$("tbox").open=!testsOk;
+ $("go").disabled=!testsOk;
+}
+$("go").addEventListener("click",run);
+$("rt").addEventListener("click",runTests);
+$("cancel").addEventListener("click",function(){cancel=true});
+$("showStats").addEventListener("change",applyStats);
+runTests();
+$("dl").addEventListener("click",function(){
+ if(!out){setStatus("WARNING — no output to download. Transform valid JSON first.",false);return}
+ var u=URL.createObjectURL(new Blob([out],{type:"application/json;charset=utf-8"})),a=document.createElement("a");
+ a.href=u;a.download="json-skeleton.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
+});
+function readFile(f){var r=new FileReader();r.onload=function(){src.value=String(r.result||"");run()};r.onerror=function(){setStatus("WARNING — could not read the file.",false)};r.readAsText(f)}
+$("load").addEventListener("click",function(){$("file").click()});
+$("file").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(f)readFile(f);e.target.value=""});
+["dragover","drop"].forEach(function(ev){src.addEventListener(ev,function(e){e.preventDefault();if(ev==="drop"&&e.dataTransfer.files[0])readFile(e.dataTransfer.files[0])})});
+})();
+</script>
+</body>
+</html>
